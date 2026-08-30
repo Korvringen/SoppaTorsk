@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#1f5b43" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Mudget" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icon.svg" />
+  <link rel="stylesheet" href="style.css" />
+  <title>Mudget</title>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="eyebrow">ER VECKOMENY</p>
+      <h1>Mudget</h1>
+      <p class="subtitle">Smarta middagar inom er budget.</p>
+    </header>
+
+    <section class="settings card" aria-labelledby="settings-title">
+      <h2 id="settings-title">Planera veckan</h2>
+      <div class="fields">
+        <label>Veckobudget <span><input id="budget" type="number" min="100" step="50" inputmode="numeric" value="900" /> kr</span></label>
+        <label>Antal middagar <select id="days"><option>3</option><option>4</option><option selected>5</option><option>6</option><option>7</option></select></label>
+        <label>Portioner per middag <select id="people"><option>1</option><option selected>2</option><option>3</option><option>4</option></select></label>
+      </div>
+      <fieldset class="protein-choice"><legend>Önskat protein</legend><div id="protein-options" class="chips"></div></fieldset>
+      <button id="generate" class="primary">Föreslå middagar</button>
+      <p class="price-note">Priserna är uppskattningar baserade på normalpris hos ICA och kan skilja mellan butiker.</p>
+    </section>
+
+    <section id="results" hidden>
+      <section class="summary card">
+        <div><p class="eyebrow">BERÄKNAD KOSTNAD</p><strong id="total">0 kr</strong></div>
+        <div class="remaining"><p class="eyebrow">KVAR AV BUDGET</p><strong id="remaining">0 kr</strong></div>
+      </section>
+      <section class="card"><div class="section-title"><h2>Era middagar</h2><button id="share" class="text-button">Dela</button></div><div id="menu" class="menu"></div></section>
+      <section class="card"><div class="section-title"><h2>Inköpslista</h2><button id="reset-checks" class="text-button" hidden>Återställ</button></div><p id="list-intro" class="list-intro">Nöjda med förslagen? Lägg till ingredienserna i en inköpslista.</p><button id="add-all" class="secondary">Lägg till alla varor i listan</button><ul id="shopping" class="shopping"></ul></section>
+    </section>
+  </main>
+  <dialog id="recipe-dialog"><div class="recipe-dialog"><button id="close-recipe" class="close" aria-label="Stäng">×</button><div id="recipe-content"></div></div></dialog>
+  <template id="meal-template"><button class="meal"><div class="meal-icon"></div><div><h3></h3><p></p></div><strong></strong></button></template>
+  <script src="app.js"></script>
+</body>
+</html>
