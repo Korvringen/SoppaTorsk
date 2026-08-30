@@ -27,20 +27,22 @@
         <label>Antal middagar <select id="days"><option>3</option><option>4</option><option selected>5</option><option>6</option><option>7</option></select></label>
         <label>Portioner per middag <select id="people"><option>1</option><option selected>2</option><option>3</option><option>4</option></select></label>
       </div>
+      <fieldset class="store-choice"><legend>Var handlar ni?</legend><div id="chain-options" class="chain-options"></div><div class="store-lookup"><input id="store-place" type="text" inputmode="numeric" placeholder="Postnummer eller ort" aria-label="Postnummer eller ort" /><button id="find-store" type="button" class="lookup-button">Hitta butik</button></div><select id="store-select" aria-label="Välj butik" hidden></select><p id="store-status" class="chain-note">Välj kedja och sök på ort eller postnummer för aktuella priser.</p></fieldset>
       <fieldset class="protein-choice"><legend>Önskat protein</legend><div id="protein-options" class="chips"></div></fieldset>
       <fieldset class="protein-choice"><legend>Undvik i förslagen</legend><div id="exclude-options" class="chips"></div></fieldset>
       <label class="veg-minimum">Vegetariska middagar per vecka <select id="vegetarian-min"><option value="0">Inget krav</option><option value="1">Minst 1</option><option value="2">Minst 2</option><option value="3">Minst 3</option></select></label>
       <button id="generate" class="primary">Föreslå middagar</button>
-      <p class="price-note">Priserna är uppskattningar baserade på normalpris hos ICA och kan skilja mellan butiker.</p>
+      <p class="price-note">Priserna är ungefärliga testpriser per portion. De används för att skapa rätt budgetnivå och är ännu inte hämtade från ICA.</p>
     </section>
 
     <section id="results" hidden>
       <section class="summary card">
-        <div><p class="eyebrow">BERÄKNAD KOSTNAD</p><strong id="total">0 kr</strong></div>
+        <div><p id="cost-label" class="eyebrow">BERÄKNAD KOSTNAD</p><strong id="total">0 kr</strong></div>
         <div class="remaining"><p class="eyebrow">KVAR AV BUDGET</p><strong id="remaining">0 kr</strong></div>
       </section>
       <section class="card"><div class="section-title"><h2>Era middagar</h2><button id="share" class="text-button">Dela</button></div><div id="menu" class="menu"></div></section>
       <section class="card"><div class="section-title"><h2>Inköpslista</h2><button id="reset-checks" class="text-button" hidden>Återställ</button></div><p id="list-intro" class="list-intro">Nöjda med förslagen? Lägg till ingredienserna i en inköpslista.</p><button id="add-all" class="secondary">Lägg till alla varor i listan</button><details id="pantry"><summary>Har ni redan något hemma?</summary><div id="pantry-options" class="chips pantry-chips"></div></details><div class="list-actions" hidden><button id="share-list" class="text-button">Dela inköpslista</button><button id="clear-pantry" class="text-button">Rensa skafferi</button></div><ul id="shopping" class="shopping"></ul></section>
+      <p id="price-attribution" class="attribution" hidden>Prisdata från <a href="https://primat.nu" target="_blank" rel="noopener">primat.nu</a></p>
     </section>
   </main>
   <dialog id="recipe-dialog"><div class="recipe-dialog"><button id="close-recipe" class="close" aria-label="Stäng">×</button><div id="recipe-content"></div></div></dialog>
