@@ -11,3 +11,4 @@
 .mustiga-settings .protein-choice{margin-top:18px}#mustiga-result{display:grid;gap:12px}.mustiga-recipe{padding:10px 0;border-top:1px solid var(--line)}.mustiga-recipe:first-child{border-top:0;padding-top:0}
 .brand-title{display:flex;align-items:center;justify-content:center;gap:7px;min-height:64px}.brand-fish{width:76px;height:76px;object-fit:contain;margin:-16px 0 -16px;transform:translateY(-8px)}header{text-align:center}.subtitle{margin-top:12px}
 html{font-size:16px}.mode-tab{font-family:inherit;font-size:.9rem;font-weight:800;line-height:1.2}
+.protein-choice .chip{font-family:inherit;font-size:.9rem;font-weight:650}
