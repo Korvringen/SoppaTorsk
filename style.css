@@ -13,3 +13,4 @@
 html{font-size:16px}.mode-tab{font-family:inherit;font-size:.9rem;font-weight:800;line-height:1.2}
 .protein-choice .chip{font-family:inherit;font-size:.9rem;font-weight:650}
 .fields{grid-template-columns:1fr;gap:12px}.fields label,.fields label:first-child{grid-column:auto;justify-content:center}
+.fields label,.fields label:first-child{width:100%;margin:0;padding:0 20px;display:grid;grid-template-columns:1fr 92px 1fr;align-items:center;justify-content:initial;text-align:left}.fields label>select{grid-column:2;width:92px;text-align:center}.fields label>span{grid-column:2 / 4;display:flex;align-items:center;gap:8px}.fields label>span input{width:92px}
