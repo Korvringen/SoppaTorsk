@@ -15,15 +15,13 @@
 <body>
   <main>
     <header>
-      <p class="eyebrow">ER VECKOMENY</p>
       <div class="brand-title"><h1>SoppaTorsk</h1><img class="brand-fish" src="soppatorsk-logo.png" alt="" /></div>
       <p class="subtitle">God mat utan att det blir soppa av ekonomin.</p>
     </header>
 
     <nav class="mode-tabs" aria-label="Välj planering"><button id="weekly-tab" class="mode-tab selected" type="button" aria-pressed="true">Veckomeny</button><button id="mustiga-tab" class="mode-tab" type="button" aria-pressed="false">Enstaka måltid</button></nav>
     <div id="weekly-view">
-    <section class="settings card" aria-labelledby="settings-title">
-      <h2 id="settings-title">Planera veckan</h2>
+    <section class="settings card">
       <div class="fields">
         <label>Veckobudget <span><input id="budget" type="number" min="100" step="50" inputmode="numeric" value="900" /> kr</span></label>
         <label>Antal middagar <select id="days"><option>3</option><option>4</option><option selected>5</option><option>6</option><option>7</option></select></label>
