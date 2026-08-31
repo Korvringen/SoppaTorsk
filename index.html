@@ -20,6 +20,8 @@
       <p class="subtitle">Smarta middagar inom er budget.</p>
     </header>
 
+    <nav class="mode-tabs" aria-label="Välj planering"><button id="weekly-tab" class="mode-tab selected" type="button" aria-pressed="true">Veckomeny</button><button id="mustiga-tab" class="mode-tab" type="button" aria-pressed="false">Mustiga män</button></nav>
+    <div id="weekly-view">
     <section class="settings card" aria-labelledby="settings-title">
       <h2 id="settings-title">Planera veckan</h2>
       <div class="fields">
@@ -42,6 +44,12 @@
       <section class="card"><div class="section-title"><h2>Era middagar</h2><button id="share" class="text-button">Dela</button></div><div id="menu" class="menu"></div></section>
       <section class="card"><div class="section-title"><h2>Inköpslista</h2><button id="reset-checks" class="text-button" hidden>Rensa lista</button></div><p id="list-intro" class="list-intro">Nöjda med förslagen? Lägg till ingredienserna i en inköpslista.</p><button id="add-all" class="secondary">Lägg till alla varor i listan</button><details id="pantry"><summary>Har ni redan något hemma?</summary><div id="pantry-options" class="chips pantry-chips"></div></details><div class="list-actions" hidden><button id="share-list" class="text-button">Dela inköpslista</button><button id="clear-pantry" class="text-button">Rensa skafferi</button></div><ul id="shopping" class="shopping"></ul></section>
       <p id="price-attribution" class="attribution" hidden>Prisdata från <a href="https://primat.nu" target="_blank" rel="noopener">primat.nu</a></p>
+    </section>
+    </div>
+
+    <section id="mustiga-view" hidden>
+      <section class="card mustiga-settings" aria-labelledby="mustiga-title"><p class="eyebrow">EN RIKTIGT REJÄL MIDDAG</p><h2 id="mustiga-title">Mustiga män</h2><p class="subtitle">En rätt för ett större gäng, med budgeten i fokus.</p><div class="mustiga-fields"><label>Antal personer <select id="mustiga-people"><option selected>10</option><option>11</option><option>12</option></select></label><label>Budget <span><input id="mustiga-budget" type="number" min="300" step="50" inputmode="numeric" value="900" /> kr</span></label></div><label class="mustiga-search">Sök efter en rätt <input id="mustiga-search" type="search" placeholder="Till exempel pasta, lax eller tacos" /></label><button id="mustiga-generate" class="primary" type="button">Hitta en rätt</button></section>
+      <section id="mustiga-results" class="card" hidden><div class="section-title"><h2>Förslag till gänget</h2><button id="mustiga-new" class="text-button" type="button">Byt förslag</button></div><div id="mustiga-result"></div></section>
     </section>
   </main>
   <dialog id="recipe-dialog"><div class="recipe-dialog"><button id="close-recipe" class="close" aria-label="Stäng">×</button><div id="recipe-content"></div></div></dialog>
