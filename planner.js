@@ -30,7 +30,8 @@
   const resultTabs=document.createElement('nav');resultTabs.className='result-tabs';resultTabs.setAttribute('aria-label','Visa resultat');resultTabs.innerHTML='<button type="button" data-result="2">Middagar</button><button type="button" data-result="3">Inköpslista</button>';shell.insertBefore(resultTabs,content);
   document.querySelector('.welcome').hidden=true;
   document.querySelector('#weekly-view').hidden=true;document.querySelector('#mustiga-view').hidden=true;
-  let step=0,mode='weekly',busy=false;
+  const session=window.soppaSession,restored=session?.hasPlan?session.view:null;
+  let step=restored&&[0,1,2,3].includes(restored.step)?restored.step:0,mode=restored?.mode==='mustiga'?'mustiga':'weekly',busy=false;
   const headings=[['STEG 1 AV 3','Först, din butik.','Vi letar efter guldkornen där du handlar.'],['STEG 2 AV 3','Vad blir det för gott?','Din budget. Dina favoriter. Vi fixar resten.'],['STEG 3 AV 3','Veckan är serverad!','Svep bland middagarna. Tryck för receptet.'],['STEG 3 AV 3','Redo för butiken.','Allt du behöver, samlat på ett ställe.']];
   function render(focus=true){
     shell.dataset.step=String(step);shell.classList.toggle('is-busy',busy);
@@ -38,11 +39,13 @@
     weekly.hidden=weeklyExtras.hidden=mode!=='weekly';single.hidden=singleExtras.hidden=mode==='weekly';
     results.hidden=step!==2||mode!=='weekly';document.querySelector('#mustiga-results').hidden=step!==2||mode==='weekly';
     shell.querySelector('#screen-kicker').textContent=busy?'ETT ÖGONBLICK, VI DUKAR FRAM…':headings[step][0];shell.querySelector('#screen-title').textContent=headings[step][1];shell.querySelector('#screen-description').textContent=headings[step][2];
+    if(step===2&&mode==='mustiga')shell.querySelector('#screen-title').textContent='Maten är serverad!';
     shell.querySelectorAll('.step-track span').forEach((el,i)=>{el.classList.toggle('active',i===Math.min(step,2));if(i===Math.min(step,2))el.setAttribute('aria-current','step');else el.removeAttribute('aria-current');});
     resultTabs.hidden=step<2||mode!=='weekly';resultTabs.querySelectorAll('button').forEach(el=>el.setAttribute('aria-pressed',String(Number(el.dataset.result)===step)));
     const back=shell.querySelector('#planner-back'),next=shell.querySelector('#planner-next');back.hidden=step===0;back.disabled=next.disabled=busy;
     back.textContent=step>=2?'Ändra matval':'Tillbaka';next.textContent=busy?'Tar fram förslag…':step===0?'Nu väljer vi maten':step===1?'Duka fram förslagen':step===2&&mode==='weekly'?'Till inköpslistan':'Ny planering';
     next.setAttribute('aria-label',next.textContent);
+    session?.setView({step,mode});
     content.scrollTop=0;if(focus)shell.querySelector('#screen-title').focus({preventScroll:true});
   }
   // Replace the former page-switching handlers with state changes inside the flow.
@@ -50,9 +53,11 @@
   shell.querySelector('#planner-back').onclick=()=>{step=step>=2?1:0;render();};
   shell.querySelector('#planner-next').onclick=async()=>{
     if(busy)return;
-    if(step===1){const input=document.querySelector(mode==='weekly'?'#budget':'#mustiga-budget');if(!input.reportValidity())return;busy=true;render(false);const error=shell.querySelector('.planner-error');error.hidden=true;try{if(mode==='weekly')await generateEnhanced();else await findMustigaRecipe();step=2;}catch(e){error.textContent='Det gick inte att ta fram middagar. Försök igen.';error.hidden=false;}finally{busy=false;render();}return;}
+    if(step===1){const input=document.querySelector(mode==='weekly'?'#budget':'#mustiga-budget');if(!input.reportValidity())return;busy=true;render(false);const error=shell.querySelector('.planner-error');error.hidden=true;try{if(mode==='weekly')await generateEnhanced();else await findMustigaRecipe();step=2;}catch(e){error.textContent=e.message||'Det gick inte att ta fram middagar. Försök igen.';error.hidden=false;}finally{busy=false;render();}return;}
     step=step===0?1:step===2&&mode==='weekly'?3:0;render();
   };
   resultTabs.onclick=event=>{const button=event.target.closest('[data-result]');if(button){step=Number(button.dataset.result);render();}};
+  document.querySelector('#mustiga-search').addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();event.stopImmediatePropagation();shell.querySelector('#planner-next').click();}},true);
+  document.querySelectorAll('.mode-tab').forEach(el=>{const active=(el.id==='weekly-tab')===(mode==='weekly');el.classList.toggle('selected',active);el.setAttribute('aria-pressed',String(active));});
   render(false);
 })();

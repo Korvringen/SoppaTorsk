@@ -1,0 +1,13 @@
+const test=require('node:test'),assert=require('node:assert/strict');
+const {choose,packageCost}=require('./planner-core.js');
+const recipe=(name,protein,ingredient,price=30)=>({name,protein,ingredients:[ingredient+' 200 g','broccoli 1 st'],price});
+const pool=[recipe('Lax','fisk','lax'),recipe('Torsk','fisk','torsk'),recipe('Kyckling','kyckling','kyckling'),recipe('Bönor','vegetariskt','bönor'),recipe('Tofu','vegetariskt','tofu'),recipe('Lax igen','fisk','lax')];
+const options={pool,days:4,people:2,budget:300,random:()=>0};
+test('locked recipes retain their positions',()=>{const prev=[pool[1],pool[2],pool[0],pool[3]];const result=choose({...options,previous:prev,locks:new Set(['Torsk','Lax'])});assert.equal(result[0],pool[1]);assert.equal(result[2],pool[0]);assert.equal(new Set(result.map(r=>r.name)).size,4);});
+test('locks outside shortened week are retained once',()=>{const result=choose({...options,previous:pool,locks:new Set(['Tofu','Lax igen']),days:3});assert.equal(new Set(result.map(r=>r.name)).size,3);assert.ok(result.includes(pool[4]));assert.ok(result.includes(pool[5]));});
+test('vegetarian minimum and variety are honored',()=>{const result=choose({...options,vegetarian:2});assert.ok(result.filter(r=>r.protein==='vegetariskt').length>=2);assert.equal(new Set(result.map(r=>r.ingredients[0])).size,4);});
+test('incompatible locks and unavailable matches are explicit errors',()=>{assert.throws(()=>choose({...options,pool:pool.slice(1),previous:[pool[0]],locks:new Set(['Lax'])}),/låst/);assert.throws(()=>choose({...options,pool:pool.slice(0,2)}),/För få/);});
+test('used amount differs from whole packs and supports units',()=>{assert.deepEqual(packageCost(750,'g',{amount:500,unit:'g',price:20}),{used:30,checkout:40,packs:2});assert.deepEqual(packageCost(3,'dl',{amount:1,unit:'l',price:20}),{used:6,checkout:20,packs:1});assert.equal(packageCost(1,'fp',{amount:500,unit:'g',price:20}),null);assert.equal(packageCost(1,'g',{amount:0,unit:'g',price:20}),null);});
+test('vegetarian requirement cannot be silently displaced by locks',()=>{assert.throws(()=>choose({...options,previous:pool.slice(0,3),locks:new Set(['Lax','Torsk','Kyckling']),vegetarian:2}),/låsta/);});
+test('an affordable diverse pool stays within budget',()=>{const result=choose({...options});assert.ok(result.reduce((s,r)=>s+r.price*options.people,0)<=options.budget);});
+test('variety does not force an avoidable budget overrun',()=>{const result=choose({pool:[recipe('Lax A','fisk','lax',30),recipe('Lax B','fisk','lax',30),recipe('Tofu dyr','vegetariskt','tofu',90)],days:2,people:1,budget:100,random:()=>0});assert.ok(result.reduce((s,r)=>s+r.price,0)<=100);});
