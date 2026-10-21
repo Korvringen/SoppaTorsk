@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#1f5b43" />
+  <meta name="theme-color" content="#163f33" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="SoppaTorsk" />
@@ -15,13 +15,19 @@
 <body>
   <main>
     <header>
-      <div class="brand-title"><h1>SoppaTorsk</h1><img class="brand-fish" src="soppatorsk-logo.png" alt="" /></div>
-      <p class="subtitle">God mat utan att det blir soppa av ekonomin.</p>
+      <div class="brand-title"><h1>SoppaTorsk</h1><img class="brand-fish" src="brand-mark.svg" alt="" /></div>
+      <p class="subtitle">Liten budget.<br>Stor matglädje.</p>
     </header>
+
+    <section class="welcome" aria-labelledby="welcome-title">
+      <div><p class="eyebrow">MER MAT FÖR PENGARNA</p><h2 id="welcome-title">En god vecka<br>börjar här.</h2><p>Planera middagar som passar både er och plånboken.</p></div>
+      <div class="welcome-mark" aria-hidden="true"><span>Din vecka.</span><strong>Din budget.</strong><span>Massor av gott.</span></div>
+    </section>
 
     <nav class="mode-tabs" aria-label="Välj planering"><button id="weekly-tab" class="mode-tab selected" type="button" aria-pressed="true">Veckomeny</button><button id="mustiga-tab" class="mode-tab" type="button" aria-pressed="false">Enstaka måltid</button></nav>
     <div id="weekly-view">
     <section class="settings card">
+      <div class="card-heading"><span class="step-number" aria-hidden="true">01</span><div><h2>Gör veckan till er</h2><p>Börja med budget och antal middagar.</p></div></div>
       <div class="fields">
         <label>Veckobudget <span><input id="budget" type="number" min="100" step="50" inputmode="numeric" value="900" /> kr</span></label>
         <label>Antal middagar <select id="days"><option>3</option><option>4</option><option selected>5</option><option>6</option><option>7</option></select></label>
@@ -55,5 +61,6 @@
   <dialog id="recipe-dialog"><div class="recipe-dialog"><button id="close-recipe" class="close" aria-label="Stäng">×</button><div id="recipe-content"></div></div></dialog>
   <template id="meal-template"><article class="meal"><button class="meal-main"><div class="meal-icon"></div><div><h3></h3><p></p></div><strong></strong></button><button class="swap-icon" type="button" aria-label="Byt middag" title="Byt middag">↻</button></article></template>
   <script src="app.js"></script>
+  <script src="planner.js"></script>
 </body>
 </html>
