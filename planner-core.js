@@ -42,5 +42,7 @@
     if(!needed||!pack||needed[0]!==pack[0]||!(pack[1]>0)||!Number.isFinite(product.price))return null;
     return {used:product.price*needed[1]/pack[1],checkout:product.price*Math.ceil(needed[1]/pack[1]),packs:Math.ceil(needed[1]/pack[1])};
   }
-  const api={choose,packageCost,baseName};root.SoppaCore=api;if(typeof module!=='undefined')module.exports=api;
+  function minutes(time){const values=String(time).match(/\d+/g);return values?Math.max(...values.map(Number)):Infinity;}
+  function portions(dinnerPeople,lunchboxes=0){return {dinnerPeople:Number(dinnerPeople),lunchboxes:Number(lunchboxes),people:Number(dinnerPeople)+Number(lunchboxes)};}
+  const api={choose,packageCost,baseName,minutes,portions};root.SoppaCore=api;if(typeof module!=='undefined')module.exports=api;
 })(globalThis);

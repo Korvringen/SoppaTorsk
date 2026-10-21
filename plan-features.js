@@ -6,7 +6,15 @@
   let shoppingActive=!!state.shopping,priceRun=0,cookIndex=0;
   const note=document.createElement('p');note.className='save-note';note.setAttribute('role','status');document.querySelector('header').after(note);note.hidden=true;
   const byName=new Map(recipes.map(r=>[r.name,r]));
-  const fieldIds=['budget','days','people','vegetarian-min','mustiga-budget','mustiga-people','mustiga-search','store-place'];
+  const timeOptions='<option value="0">Ingen gräns</option><option value="20">Högst 20 min</option><option value="30">Högst 30 min</option><option value="45">Högst 45 min</option>';
+  const planningExtras=document.createElement('div');planningExtras.className='planning-extras';planningExtras.innerHTML=`<label>Tid per middag<select id="max-time">${timeOptions}</select></label><label>Matlådor per middag<select id="lunchboxes">${[0,1,2,3,4,5,6].map(n=>`<option value="${n}">${n===0?'Inga':n+' extra'}</option>`).join('')}</select></label>`;document.querySelector('.fields').after(planningExtras);
+  const singleExtras=document.createElement('div');singleExtras.className='single-time';singleExtras.innerHTML=`<label>Tillagningstid<select id="max-time-single">${timeOptions}</select></label>`;document.querySelector('.mustiga-fields').after(singleExtras);
+  const baseWeeklyRecipes=selectedRecipes,baseSingleRecipes=mustigaSelectedRecipes;
+  selectedRecipes=()=>baseWeeklyRecipes().filter(r=>!Number(document.getElementById('max-time').value)||SoppaCore.minutes(r.time)<=Number(document.getElementById('max-time').value));
+  mustigaSelectedRecipes=()=>baseSingleRecipes().filter(r=>!Number(document.getElementById('max-time-single').value)||SoppaCore.minutes(r.time)<=Number(document.getElementById('max-time-single').value));
+  const fieldIds=['budget','days','people','vegetarian-min','mustiga-budget','mustiga-people','mustiga-search','store-place','max-time','max-time-single','lunchboxes'];
+  for(const value of [2,1]){const option=document.createElement('option');option.value=String(value);option.textContent=String(value);document.getElementById('days').prepend(option);}
+  document.getElementById('people').closest('label').firstChild.textContent='Till middagen ';
   function persist(){
     state={...state,version:1,locks:[...locks],checks:[...checks],shopping:shoppingActive,menu:current.map(r=>r.name),config:lastConfig,fields:Object.fromEntries(fieldIds.map(id=>[id,document.getElementById(id).value])),protein:[...selected],carbs:[...selectedCarbs],singleProtein:[...mustigaSelected],singleCarbs:[...mustigaSelectedCarbs]};
     try{localStorage.setItem(KEY,JSON.stringify(state));note.hidden=true;}catch{storageOK=false;note.textContent='Din webbläsare kunde inte spara planeringen. Den finns kvar så länge sidan är öppen.';note.hidden=false;}
@@ -86,12 +94,14 @@
     document.querySelector('.remaining .eyebrow').textContent=remaining<0?'ÖVER BUDGET':'KVAR AV BUDGET';document.getElementById('remaining').textContent=kronor(Math.abs(remaining));
     document.querySelectorAll('#menu .meal').forEach((el,index)=>{const recipe=current[index],locked=locks.has(recipe.name),button=document.createElement('button');button.type='button';button.className='lock-meal';button.textContent=locked?'🔒 Låst':'Lås';button.setAttribute('aria-pressed',String(locked));button.setAttribute('aria-label',`${locked?'Lås upp':'Lås'} ${recipe.name}`);button.onclick=()=>{locked?locks.delete(recipe.name):locks.add(recipe.name);const scroll=document.getElementById('menu').scrollLeft;renderMenu();document.getElementById('menu').scrollLeft=scroll;};el.append(button);el.classList.toggle('is-locked',locked);el.querySelector('.swap-icon').disabled=locked;});
     document.getElementById('lock-count').textContent=`${current.filter(r=>locks.has(r.name)).length} av ${current.length} låsta`;
+    if(lastConfig.lunchboxes){document.querySelectorAll('#menu .meal-main p').forEach((el,index)=>el.textContent=`${current[index].time} · ${lastConfig.dinnerPeople} middag + ${lastConfig.lunchboxes} matlådor`);}
     planMessage.textContent='';
     drawShopping();persist();
   };
   generateEnhanced=async function(){
-    const config={budget:Number(document.getElementById('budget').value),days:Number(document.getElementById('days').value),people:Number(document.getElementById('people').value)};
+    const config={budget:Number(document.getElementById('budget').value),days:Number(document.getElementById('days').value),...SoppaCore.portions(document.getElementById('people').value,document.getElementById('lunchboxes').value)};
     const pool=selectedRecipes().filter(recipeAllowed);
+    if(pool.length<config.days)throw Error(`${pool.length} olika rätter matchar matvalen${Number(document.getElementById('max-time').value)?' och tidsgränsen på '+document.getElementById('max-time').value+' minuter':''}. Välj färre middagar eller en längre tillagningstid.`);
     await loadStoreDeals();primeRecipeDeals(pool);
     const next=SoppaCore.choose({pool,previous:current,locks,days:config.days,people:config.people,budget:config.budget,vegetarian:Number(document.getElementById('vegetarian-min').value),preference:r=>Math.min(recipeDeals.get(r.name)?.count||0,3)*3+(favorites.has(r.name)?2:0)-(current.some(old=>old.name===r.name)?12:0)});
     lastConfig=config;current=next;renderMenu();void refreshPrices();
@@ -120,12 +130,15 @@
   };
   showDetailedRecipe=function(recipe,people,source='weekly'){
     oldRecipe(recipe,people,source);
+    if(source==='weekly'&&lastConfig?.lunchboxes)document.querySelector('#recipe-content .recipe-meta').textContent=`${recipe.time} · ${lastConfig.dinnerPeople} middagsportioner + ${lastConfig.lunchboxes} matlådor`;
     const button=document.createElement('button');button.type='button';button.className='primary';button.textContent='Börja laga · steg för steg';button.onclick=()=>{cookIndex=0;drawCooking(recipe,people);};document.querySelector('#recipe-content .recipe-meta').after(button);
     const swap=document.getElementById('swap-meal');if(locks.has(recipe.name)&&source==='weekly'){swap.disabled=true;swap.textContent='Middagen är låst – lås upp i veckomenyn';}
+    if(source==='favorite')swap.hidden=true;
+    drawFavorites();
   };
   function drawCooking(recipe,people,ingredients=false){
     const content=document.getElementById('recipe-content');content.replaceChildren();const title=document.createElement('h2');title.textContent=recipe.name;content.append(title);
-    const meta=document.createElement('p');meta.className='recipe-meta';meta.textContent=`För ${people} personer · ${ingredients?'Ingredienser':`Steg ${cookIndex+1} av ${recipe.steps.length}`}`;content.append(meta);
+    const meta=document.createElement('p');meta.className='recipe-meta';meta.textContent=`${activeRecipeSource==='weekly'&&lastConfig?.lunchboxes?lastConfig.dinnerPeople+' middag + '+lastConfig.lunchboxes+' matlådor':'För '+people+' personer'} · ${ingredients?'Ingredienser':`Steg ${cookIndex+1} av ${recipe.steps.length}`}`;content.append(meta);
     const tabs=document.createElement('div');tabs.className='cooking-tabs';const toggle=document.createElement('button');toggle.type='button';toggle.className='secondary';toggle.textContent=ingredients?'Tillbaka till steget':'Visa ingredienser';toggle.onclick=()=>drawCooking(recipe,people,!ingredients);tabs.append(toggle);content.append(tabs);
     if(ingredients){const ul=document.createElement('ul');recipe.ingredients.forEach(raw=>{const li=document.createElement('li');li.textContent=scaled(raw,people);ul.append(li);});content.append(ul);}else{
       const instruction=document.createElement('p');instruction.className='cooking-instruction';instruction.tabIndex=-1;instruction.textContent=scaledStep(recipe.steps[cookIndex],people);content.append(instruction);
@@ -137,6 +150,37 @@
   findMustigaRecipe=async function(){await oldSingle();state.single=[...document.querySelectorAll('#mustiga-result h3')].map(el=>el.textContent);state.singlePeople=Number(document.getElementById('mustiga-people').value);persist();};
   document.getElementById('mustiga-new').removeEventListener('click',oldSingle);
   document.getElementById('mustiga-new').addEventListener('click',findMustigaRecipe);
+  const favoriteView=document.createElement('section');favoriteView.id='favorites-view';favoriteView.hidden=true;favoriteView.setAttribute('aria-label','Sparade favoriter');document.querySelector('main').append(favoriteView);
+  const favoriteLaunch=document.createElement('button');favoriteLaunch.type='button';favoriteLaunch.className='favorites-launch';favoriteLaunch.onclick=()=>{drawFavorites();document.dispatchEvent(new CustomEvent('soppa:screen',{detail:4}));};document.querySelector('header').append(favoriteLaunch);
+  const favoriteDialog=document.createElement('dialog');favoriteDialog.className='favorite-dialog';document.body.append(favoriteDialog);
+  function drawFavorites(){
+    const savedRecipes=[...favorites].map(name=>byName.get(name)).filter(Boolean);favoriteLaunch.textContent=`★ ${savedRecipes.length}`;favoriteLaunch.setAttribute('aria-label',`Favoriter, ${savedRecipes.length} sparade`);favoriteView.replaceChildren();
+    if(!savedRecipes.length){const p=document.createElement('p');p.className='favorites-empty';p.textContent='Här samlar du det godaste. Öppna ett recept och tryck på ”Spara som favorit”, så hittar du det här nästa gång.';favoriteView.append(p);return;}
+    savedRecipes.forEach(recipe=>{
+      const card=document.createElement('article');card.className='favorite-card';const open=document.createElement('button');open.type='button';open.className='favorite-open';const icon=document.createElement('span'),text=document.createElement('span'),title=document.createElement('strong'),meta=document.createElement('small');icon.className='favorite-icon';icon.textContent=recipe.icon;title.textContent=recipe.name;meta.textContent=`${recipe.time} · ca ${kronor(recipe.price)} / portion`;text.append(title,meta);open.append(icon,text);open.onclick=()=>showDetailedRecipe(recipe,lastConfig?.people||Number(document.getElementById('people').value),'favorite');
+      const actions=document.createElement('div');actions.className='favorite-actions';const add=document.createElement('button'),remove=document.createElement('button');add.type=remove.type='button';add.className='secondary';add.textContent=current.some(r=>r.name===recipe.name)?'Finns i veckan':'Lägg i veckan';add.disabled=current.some(r=>r.name===recipe.name);add.onclick=()=>pickFavorite(recipe);remove.className='text-button';remove.textContent='Ta bort';remove.setAttribute('aria-label','Ta bort '+recipe.name+' från favoriter');remove.onclick=()=>{favorites.delete(recipe.name);saveSet('mudget-favorites',favorites);drawFavorites();};actions.append(add,remove);card.append(open,actions);favoriteView.append(card);
+    });
+  }
+  function pickFavorite(recipe){
+    favoriteDialog.replaceChildren();const heading=document.createElement('h2');heading.textContent='En favorit i veckan';const description=document.createElement('p');description.textContent=recipe.name;const status=document.createElement('p');status.setAttribute('role','status');const close=document.createElement('button');close.type='button';close.className='text-button';close.textContent='Avbryt';close.onclick=()=>favoriteDialog.close();favoriteDialog.append(heading,description);
+    const slots=document.createElement('select');slots.setAttribute('aria-label','Middag att ersätta');
+    current.forEach((r,index)=>{if(locks.has(r.name))return;const option=document.createElement('option');option.value=String(index);option.textContent=`Middag ${index+1}: ${r.name}`;slots.append(option);});
+    const existing=!!lastConfig&&current.length>0;
+    if(existing&&slots.options.length)favoriteDialog.append(slots);
+    const confirm=document.createElement('button');confirm.type='button';confirm.className='primary';confirm.textContent=existing?'Ersätt och lås middagen':'Planera veckan med favoriten';confirm.disabled=existing&&!slots.options.length;
+    if(confirm.disabled)status.textContent='Alla middagar är låsta. Lås upp en middag först.';
+    confirm.onclick=async()=>{
+      confirm.disabled=true;const previous=[...current],wasLocked=locks.has(recipe.name);
+      try{
+        if(!selectedRecipes().some(r=>r.name===recipe.name)||!recipeAllowed(recipe))throw Error('Favoriten passar inte dina matval eller tidsgränsen. Ändra matvalen först.');
+        if(existing){const next=[...current];next[Number(slots.value)]=recipe;if(next.filter(r=>r.protein==='vegetariskt').length<Number(document.getElementById('vegetarian-min').value))throw Error('Bytet skulle ge för få vegetariska middagar. Välj en annan middag att ersätta.');current=next;locks.add(recipe.name);renderMenu();void refreshPrices();}
+        else{current=[recipe];locks.add(recipe.name);await generateEnhanced();}
+        drawFavorites();favoriteDialog.close();document.dispatchEvent(new CustomEvent('soppa:screen',{detail:2}));
+      }catch(error){current=previous;if(!wasLocked)locks.delete(recipe.name);status.textContent=error.message;confirm.disabled=false;}
+    };
+    favoriteDialog.append(status,confirm,close);favoriteDialog.showModal();
+  }
+  drawFavorites();
   // Restore only known recipe IDs; never trust saved markup or recipe instructions.
   if(state.fields)fieldIds.forEach(id=>{if(typeof state.fields[id]==='string')document.getElementById(id).value=state.fields[id];});
   if(Array.isArray(state.protein))selected=new Set(state.protein.filter(x=>proteins.includes(x)));
@@ -150,4 +194,5 @@
   if(Array.isArray(state.single)){
     const target=document.getElementById('mustiga-result');target.replaceChildren();state.single.forEach(name=>{const r=byName.get(name);if(!r)return;const button=document.createElement('button'),icon=document.createElement('div'),text=document.createElement('div'),title=document.createElement('h3'),meta=document.createElement('p');button.type='button';button.className='mustiga-recipe';icon.className='meal-icon';icon.textContent=r.icon;title.textContent=r.name;meta.textContent=`ca ${kronor(r.price*(state.singlePeople||2))} för ${state.singlePeople||2} personer · ${r.time}`;text.append(title,meta);button.append(icon,text);button.onclick=()=>showDetailedRecipe(r,state.singlePeople||2,'mustiga');target.append(button);});
   }
+  drawFavorites();
 })();
