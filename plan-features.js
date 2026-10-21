@@ -26,7 +26,7 @@
   menuTools.append(document.getElementById('share'));
   const planMessage=document.createElement('p');planMessage.className='plan-message';planMessage.setAttribute('role','status');menuTools.before(planMessage);
   const pricePanel=document.createElement('details');pricePanel.className='price-panel';pricePanel.innerHTML='<summary>Vad kostar det vid kassan?</summary><div class="price-breakdown"></div>';
-  document.querySelector('#results .summary').after(pricePanel);
+  document.querySelector('#results .summary').after(pricePanel);pricePanel.append(document.getElementById('price-attribution'));
   const progress=document.createElement('div');progress.className='shopping-progress';progress.setAttribute('aria-live','polite');document.getElementById('shopping').before(progress);
   function category(name){
     if(/pulver|krydda|oregano|timjan|salt|peppar|buljong|olja|vinäger|honung|soja|pesto|puré|saffran|chili/.test(name))return 'Skafferi';

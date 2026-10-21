@@ -95,3 +95,15 @@ main{padding-top:calc(8px + env(safe-area-inset-top));padding-bottom:env(safe-ar
 .planner[data-step="2"] #menu .meal-main{grid-template-rows:minmax(48px,1fr) auto auto}
 @media(max-width:360px){.planner[data-step="2"] #menu .meal-icon{font-size:1.4rem;padding-top:20px}.planner[data-step="2"] #menu .meal:before{font-size:.46rem;left:17px}}
 @media(max-height:700px){.planner[data-step="2"] #menu .meal-icon{min-height:40px;font-size:1.3rem;padding-top:14px;padding-bottom:2px}.planner[data-step="2"] #menu .meal-main{grid-template-rows:minmax(40px,1fr) auto auto;gap:4px}.planner[data-step="2"] #menu .meal-main strong{min-height:22px;padding:2px 6px;font-size:.7rem}.planner[data-step="2"] #menu .lock-meal{min-height:25px;padding:4px 8px;font-size:.65rem}.planner[data-step="2"] #menu .meal p{margin-top:3px}.planner[data-step="2"] #menu .swap-icon{width:24px;height:24px;font-size:.95rem}}
+/* Apply the iPhone bottom inset once, and give reclaimed space to dinner imagery. */
+main{padding-bottom:0}
+.planner .planner-actions,.planner[data-step="2"] .planner-actions{padding-bottom:max(8px,env(safe-area-inset-bottom));padding-top:6px;margin:0}
+.planner[data-step="2"] .screen-heading>p:last-child{display:none}
+.planner[data-step="2"] .screen-heading,.planner[data-step="2"] .screen-heading h2{margin-bottom:0}
+.planner[data-step="2"] .screen-heading{padding-bottom:10px}
+.planner[data-step="2"] #menu .meal-icon{font-size:2.3rem;min-height:62px;padding:15px 42px 3px}
+.planner[data-step="2"] #menu .meal-main{grid-template-rows:minmax(62px,1fr) auto auto}
+.planner[data-step="2"] #menu .meal:before{top:18px;left:19px;font-size:.5rem}
+.planner[data-step="2"] #menu .swap-icon{top:16px;right:16px;width:28px;height:28px}
+.planner[data-step="2"] .price-panel .attribution{margin:8px 0 0;font-size:.65rem}
+@media(max-height:580px){.planner[data-step="2"] #menu .meal-icon{min-height:45px;font-size:1.8rem;padding-top:13px}.planner[data-step="2"] #menu .meal-main{grid-template-rows:minmax(45px,1fr) auto auto}}
